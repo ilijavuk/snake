@@ -88,7 +88,7 @@ srcaImage.src = "images/3srca.png";
 
 //Brzine
 var rocket = {
-	speed: 600
+	speed: 400
 }
 var bossHealth = {
 	speed: 0
@@ -242,7 +242,7 @@ var update = function(modifier) {
 		mob.speed = 0;
 		killovi = 0;
 		killovi10 += 1;
-		rocketImage.src = "images/rocket.jpg"
+		rocketImage.src = "images/rocket.png"
     }	
 	//Boss healthbar
 	if(bossHP == 10 && bossAlive == 1){
@@ -278,6 +278,7 @@ var update = function(modifier) {
 	//boss death
 	if(bossHP == 0 && pauzirano == 0){
 		mobImage.src = "images/mob2.png";
+		rocketImage.src = "";
 		bossImage.src = "";
 		bossHP = 10; 
 		bossAlive = 0;
@@ -285,7 +286,7 @@ var update = function(modifier) {
 		mob.speed = 500;
 		boss.x = 1400;
 	}	
-	//boss movement
+	//boss movement 
 	if(boss.y < 250){
 		boss.y = 250;		
 	}
@@ -306,11 +307,10 @@ var update = function(modifier) {
 			novaVar = 300;
 		}
 	}
-	console.log(novaVar);
 	//rakete
 	if(bossAlive == 1){
 		for (i = 0; i < rockets.length; i++) {
-			rockets[i].x = rockets[i].x - 10;
+			rockets[i].x -= rocket.speed * modifier;
 			var k = rockets[i].x;
 			var l = rockets[i].y;
 			var o = rockets[i].x;
@@ -318,18 +318,18 @@ var update = function(modifier) {
 			if ((k >= hero.x && k <= hero.x+ 46) && (l >= hero.y && l <= hero.y+69)) {
 				rockets.splice(rockets[i], 1);
 				srceta -= 1;
-			}  
-			if(o < 0){
+				hero.y -= 40;
+			} 
+			//spliceaj kad izađu sa screena
+			if(k < 0){
 				rockets.splice(rockets[i], 1);
 			}
 		}
-		//pushaj rakete
-		for(i = 0; i > 10; i++){
-			if(i % 2 == 0){
-				rocket.x = boss.x;
-				rocket.y = boss.y + 78;
-				rockets.push(rocket);
-			}
+		//pushaj rakete	
+		if(rockets.length < 2){
+			rocket.x = boss.x - 5;;
+			rocket.y = boss.y + 65;
+			rockets.push(rocket);
 		}
 	}	
 	//opće varijable
@@ -338,6 +338,7 @@ var update = function(modifier) {
 	bossHealth.x = boss.x + 100;
 	bossHealth.y = boss.y + 250;
 	kamehameha.x += kamehameha.speed * modifier;
+	//console.log
 }
 
 var reset = function() {
