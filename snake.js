@@ -11,7 +11,26 @@ var smjerboss = 0;
 var novaVar = 300;
 var bossHP = 10;;
 var bossAlive = 0;
-var odabir = 2;//prompt("Odaberite težinu, što je niži broj, to je igra teža ;) \n(Odaberite 2 za najbolji doživljaj igranja)");
+var odabir = prompt("Odaberite težinu, što je niži broj, to je igra teža ;) \n(Odaberite 2 za najbolji doživljaj igranja)");
+//mutebutton
+var mutebutton = document.createElement("BUTTON");
+var t = document.createTextNode("Mute audio");
+mutebutton.appendChild(t);
+foo.appendChild(mutebutton);
+mutebutton.addEventListener('click', function(){
+	music.volume = 0;
+	pucanj.volume = 0;
+	yoursoul.volume = 0;
+	gameover.volume = 0;
+	});
+//sounds
+var music = new Audio('sounds/music.mp3');
+var pucanj = new Audio('sounds/wave2.mp3');
+var gameover = new Audio('sounds/GameOver.mp3');
+var yoursoul = new Audio('sounds/yoursoul.wav');
+var executedgameover = 0;
+music.play();
+pucanj.volume = 0.02;
 
 var lista = [1, 2, 3, 4, 5, 6, 7];
 
@@ -20,7 +39,7 @@ var rocketImage = new Image();
 rocketImage.onload = function() {
     rocketReady = true;
 };
-rocketImage.src = "images/rocket.jpg";
+rocketImage.src = "images/rocket.png";
 
 var bgReady = false;
 var bgImage = new Image();
@@ -126,6 +145,8 @@ addEventListener("keydown", function(e) {
     	wave.x = hero.x - 10;
 		wave.y = hero.y + 10;
 		waves.push(wave);
+		pucanj.currentTime = 0;
+		pucanj.play();
 		}		
 }, false);
 
@@ -227,7 +248,13 @@ var update = function(modifier) {
     if(srceta <= 0){
 		srcaImage.src = "images/ded.png";
 		setGameOver();
-    }
+		if(executedgameover == 0){
+			executedgameover = 1;
+			music.pause();
+			
+			gameover.play();			
+		}
+    }	
 	if(Math.trunc(killovi/10) < diff){
 		diff += 1;
 	}
@@ -243,6 +270,7 @@ var update = function(modifier) {
 		killovi = 0;
 		killovi10 += 1;
 		rocketImage.src = "images/rocket.png"
+		yoursoul.play();
     }	
 	//Boss healthbar
 	if(bossHP == 10 && bossAlive == 1){
@@ -340,6 +368,7 @@ var update = function(modifier) {
 	kamehameha.x += kamehameha.speed * modifier;
 	//console.log
 }
+
 
 var reset = function() {
     hero.x = canvas.width / 2;
