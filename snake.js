@@ -11,6 +11,7 @@ var smjerboss = 0;
 var novaVar = 300;
 var bossHP = 10;;
 var bossAlive = 0;
+var kamehamehaAvailable = 1;
 var odabir = prompt("Odaberite težinu, što je niži broj, to je igra teža ;) \n(Odaberite 2 za najbolji doživljaj igranja)");
 //mutebutton
 var mutebutton = document.createElement("BUTTON");
@@ -30,9 +31,18 @@ var gameover = new Audio('sounds/GameOver.mp3');
 var yoursoul = new Audio('sounds/yoursoul.wav');
 var executedgameover = 0;
 music.play();
+music.currentTime = 25;
 pucanj.volume = 0.02;
 
 var lista = [1, 2, 3, 4, 5, 6, 7];
+
+
+var crateReady = false;
+var crateImage = new Image();
+crateImage.onload = new function(){
+	crateReady = true;
+};
+
 
 var rocketReady = false;
 var rocketImage = new Image();
@@ -106,6 +116,9 @@ srcaImage.src = "images/3srca.png";
 
 
 //Brzine
+var crate = {
+	speed: 350
+}
 var rocket = {
 	speed: 400
 }
@@ -148,6 +161,12 @@ addEventListener("keydown", function(e) {
 		pucanj.currentTime = 0;
 		pucanj.play();
 		}		
+	if (e.keyCode == 69 && kamehamehaAvailable == 1) {
+		kamehamehaImage.src = "images/kamehameha.png";
+		kamehameha.x = hero.x + 8;
+		kamehameha.y = hero.y - 15;
+		kamehamehaAvailable = 0;
+	}
 }, false);
 
 addEventListener("keyup", function(e) {
@@ -168,13 +187,6 @@ var update = function(modifier) {
         hero.x += hero.speed * modifier;
         heroImage.src = "images/hero.png";
 	}
-	/* Kamehameha
-	if (69 in keysDown) {
-		kamehamehaImage.src = "images/kamehameha.png";
-		kamehameha.x = hero.x + 8;
-		kamehameha.y = hero.y - 15;
-	}
-	*/
 	if (27 in keysDown) {
 		pause();
 		pauzirano = 1;
@@ -185,6 +197,10 @@ var update = function(modifier) {
 	}
 	if(hero.x <= 0){
 		hero.x = 0;
+	}
+	if(crate.y >= 700){
+		crate.y = 0;
+		crate.x = Math.floor(Math.random()*670) + 1;
 	}
 	while(rendom > 600 || rendom <280){
 		rendom = Math.floor((Math.random() * 1000) + 1);
@@ -213,6 +229,13 @@ var update = function(modifier) {
 			bossHP -= 1;
 		}    
     }
+	//collision detection kamehameha/mob
+			if ((kamehameha.x + 78>= mob.x && kamehameha.x + 78 <= mob.x+50) && (kamehameha.y+15 >= mob.y && kamehameha.y+15 <= mob.y+86)) {
+			mob.x = 1024;
+			mob.y = rendom;
+			killovi = killovi + 1;
+			kamehamehaImage.src = "";
+		}
     if(mob.x <= 0) {
 		mob.x = 1024;
 		mob.y = rendom;
@@ -259,7 +282,7 @@ var update = function(modifier) {
 		diff += 1;
 	}
     //Boss appearance
-	if(killovi == 10 || killovi == 20 || killovi == 30){
+	if(killovi == 10){
 		boss.x = 750;
 		boss.y = canvas.height/2;
 		mobImage.src = "";
@@ -385,6 +408,8 @@ var reset = function() {
     
     restart.x = 0;
     restart.y = 0;
+	
+	crate.y = 0;
     
     srceta = 3;
 };
@@ -401,6 +426,9 @@ var render = function() {
 	if(bossHealthReady) {
 		ctx.drawImage(bossHealthImage, bossHealth.x, bossHealth.y);
 	}	
+	if(crateReady) {
+		ctx.drawImage(crateImage, crate.x, crate.y);
+	}
     if (heroReady) {
 		ctx.drawImage(heroImage, hero.x, hero.y);
     }   
@@ -439,6 +467,10 @@ function pause(){
 	restartImage.src = "images/unpause.png";
 	restart.x = (canvas.width-500)/2;
 	restart.y = canvas.height/2;
+}
+
+function spawnLoot(){
+	crate.y = Math.floor(Math.random() * 670) + 1  
 }
 
 function pokreni(){
