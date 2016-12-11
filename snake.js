@@ -11,8 +11,9 @@ var smjerboss = 0;
 var novaVar = 300;
 var bossHP = 10;;
 var bossAlive = 0;
-var kamehamehaAvailable = 1;
+var kamehamehaAvailable = 0;
 var odabir = prompt("Odaberite težinu, što je niži broj, to je igra teža ;) \n(Odaberite 2 za najbolji doživljaj igranja)");
+var executedgameover = 0;
 //timer za crate
 var timeInMinutes = 1;
 var currentTime = Date.parse(new Date());
@@ -33,13 +34,28 @@ var music = new Audio('sounds/music.mp3');
 var pucanj = new Audio('sounds/wave2.mp3');
 var gameover = new Audio('sounds/GameOver.mp3');
 var yoursoul = new Audio('sounds/yoursoul.wav');
-var executedgameover = 0;
+var explosion = new Audio('sounds/explosion.wav');
+var safet = new Audio('sounds/safet.wav');
+var celebration = new Audio('sounds/panda.wav');
+var woohoo = new Audio('sounds/woohoo.wav');
 music.play();
 music.currentTime = 25;
 pucanj.volume = 0.02;
 
 var lista = [1, 2, 3, 4, 5, 6, 7];
 
+var cratesrceReady = false;
+var cratesrceImage = new Image();
+cratesrceImage.onload = new function(){
+	cratesrceReady = true;
+};
+
+var powerupReady = false;
+var powerupImage = new Image();
+powerupImage.onload = new function(){
+	powerupReady = true;
+};
+powerupImage.src = "images/kamehamehaReady.png";
 
 var crateReady = false;
 var crateImage = new Image();
@@ -117,6 +133,12 @@ srcaImage.src = "images/3srca.png";
 
 
 //Brzine
+var powerup = {
+	speed: 0
+}
+var cratesrce = {
+	speed: 350
+}
 var crate = {
 	speed: 350
 }
@@ -166,7 +188,7 @@ addEventListener("keydown", function(e) {
 		kamehameha.speed = 720;
 		kamehamehaImage.src = "images/kamehameha.png";
 		kamehameha.x = hero.x + 8;
-		kamehameha.y = hero.y - 15;
+		kamehameha.y = hero.y + 15;
 		kamehamehaAvailable = 0;
 	}
 }, false);
@@ -182,13 +204,21 @@ var update = function(modifier) {
     if (40 in keysDown && hero.y < 630) {
         hero.y += hero.speed * modifier;
     }
-    if (37 in keysDown && hero.x > 0) {
+    if (37 in keysDown && hero.x > 0 && kamehamehaAvailable == 0) {
         hero.x -= hero.speed * modifier;
         heroImage.src = "images/heroleft.png";
     }
-	if (39 in keysDown && hero.x < 670) {
+	if (39 in keysDown && hero.x < 670 && kamehamehaAvailable == 0) {
         hero.x += hero.speed * modifier;
         heroImage.src = "images/hero.png";
+	}
+	if (37 in keysDown && hero.x > 0 && kamehamehaAvailable == 1) {
+        hero.x -= hero.speed * modifier;
+        heroImage.src = "images/heroUPLeft.png";
+    }
+	if (39 in keysDown && hero.x < 670 && kamehamehaAvailable == 1) {
+        hero.x += hero.speed * modifier;
+        heroImage.src = "images/heroUP.png";
 	}
 	if (27 in keysDown) {
 		pause();
@@ -201,17 +231,44 @@ var update = function(modifier) {
 	if(hero.x <= 0){
 		hero.x = 0;
 	}
+	//crate srce
+	if(Math.abs(getTimeRemaining(deadline).seconds) == 10 || Math.abs(getTimeRemaining(deadline).seconds) == 30 || Math.abs(getTimeRemaining(deadline).seconds) == 50){
+		cratesrceImage.src = "images/cratesrce.png";
+		cratesrce.y = 0;
+		cratesrce.x = Math.floor(Math.random()*670) + 1;
+	}
+	if(cratesrce.y >= 700){
+		cratesrceImage.src = "";
+	}
+	//collision detection hero/cratesrce
+	if((hero.x < cratesrce.x + 45 && hero.x + 42 > cratesrce.x ) && (hero.y < cratesrce.y + 45 && hero.y + 69 > cratesrce.y)){
+		cratesrceImage.src = "";
+		srceta += 1;
+		woohoo.play();
+	} 
 	//crate 
-	if(getTimeRemaining(deadline).seconds <= 0){
+	if(Math.abs(getTimeRemaining(deadline).seconds) == 0 || Math.abs(getTimeRemaining(deadline).seconds) == 20 || Math.abs(getTimeRemaining(deadline).seconds) == 40){
 		crateImage.src = "images/crate.png";
 		crate.y = 0;
 		crate.x = Math.floor(Math.random()*670) + 1;
-
 	}
 	if(crate.y >= 700){
-		crate.y = 0;
-		crate.x = Math.floor(Math.random()*670) + 1;
+		crateImage.src = "";
 	}
+	if(kamehamehaAvailable == 1){
+		powerupImage.src = "images/kamehamehaReady.png";
+	}
+	if(kamehamehaAvailable == 0){
+		powerupImage.src = "images/kamehamehaNotReady.png";
+	}
+	//collision detection hero/crate
+	if((hero.x < crate.x + 45 && hero.x + 42 > crate.x ) && (hero.y < crate.y + 45 && hero.y + 69 > crate.y)){
+		kamehamehaAvailable = 1;
+		crateImage.src = "";
+		heroImage.src = "images/heroUP.png";
+		celebration.play();
+	}
+	
 	//waves
 	for (i = 0; i < waves.length; i++) {
 		waves[i].x = waves[i].x + 10;
@@ -253,11 +310,12 @@ var update = function(modifier) {
 		kamehamehaImage.src = "";
 		kamehameha.x = 0;
 		kamehameha.speed = 0;
+		explosion.play();
 	}	
 	if(kamehameha.x >= 1024){
 		kamehameha.x = 0;
 		kamehameha.speed = 0;
-		kamehamehImage.src = "";
+		kamehamehaImage.src = "";
 	}
     if(mob.x <= 0) {
 		mob.x = 1024;
@@ -358,26 +416,28 @@ var update = function(modifier) {
 		bossHealthImage.src = "";
 		mob.speed = 500;
 		boss.x = 1400;
+		safet.play();
+		music.volume = 0;
 	}	
 	//boss movement 
-	if(boss.y < 250){
-		boss.y = 250;		
+	if(boss.y < 150){
+		novaVar = -(Math.floor(Math.random()*(650-0+1)+0));		
 	}
-	if(boss.y > 650){
-		boss.y = 650;		
+	if(boss.y > 600){
+		novaVar = Math.floor(Math.random()*(650-0+1)+0);	
 	}
 	if(novaVar > 0){
 		boss.y -= 8*(boss.speed * modifier);
 		novaVar -= 10;
 		if(novaVar <= 0){
-			novaVar = -300;
+			novaVar = Math.floor(Math.random()*(650-0+1)+0);
 		}
     }
 	if(novaVar <= 0){
 		boss.y += 8*(boss.speed * modifier);
 		novaVar += 10;
 		if(novaVar >= 0){
-			novaVar = 300;
+			novaVar = -(Math.floor(Math.random()*(650-0+1)+0));
 		}
 	}
 	//rakete
@@ -405,14 +465,17 @@ var update = function(modifier) {
 			rockets.push(rocket);
 		}
 	}	
+	if(safet.currentTime == 12){
+		music.volume = 100;
+	}
 	//opće varijable
-	
 	rendom = Math.floor(Math.random()*(600-280+1)+280);
 	mob.x -= Math.log2(mob.speed * modifier * diff);	
 	bossHealth.x = boss.x + 100;
 	bossHealth.y = boss.y + 250;
 	kamehameha.x += kamehameha.speed * modifier;
 	crate.y += crate.speed * modifier;
+	cratesrce.y += cratesrce.speed * modifier;
 	//console.log
 	console.log(getTimeRemaining(deadline).seconds);
 }
@@ -435,6 +498,10 @@ var reset = function() {
     restart.y = 0;
 	
 	crate.y = 0;
+	cratesrce.y = 0;
+	
+	powerup.x = 0;
+	powerup.y = 610;
     
     srceta = 3;
 };
@@ -448,6 +515,12 @@ var render = function() {
 		ctx.strokeStyle = '#00ff00';
 		ctx.strokeText("Broj killova " + killovi10 + killovi, 500, 40);
 	}	
+	if(cratesrceReady) {
+		ctx.drawImage(cratesrceImage, cratesrce.x, cratesrce.y);
+	}
+	if(powerupReady) {
+		ctx.drawImage(powerupImage, powerup.x, powerup.y);
+	}
 	if(bossHealthReady) {
 		ctx.drawImage(bossHealthImage, bossHealth.x, bossHealth.y);
 	}	
@@ -513,14 +586,19 @@ function admin(){
 
 function setGameOver(){
 	hero.speed = 0;
+	crate.speed = 0;
 	mob.speed = 0;
+	boss.speed = 0;
+	rocket.speed = 0;
 	waveImage.src = "";
 	kamehamehaImage.src = "";
 	heroImage.src = "images/hero.png";
+	crateImage.src = "";
 	hero.x = canvas.width/2;
 	hero.y = canvas.height/2;
 	restart.x = 300;
 	restart.y = 350;
+	crate.x = 1024;
 	restartImage.src = "images/startOver.png";
     if(13 in keysDown){
 		startAgain();
