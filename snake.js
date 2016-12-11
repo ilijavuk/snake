@@ -13,6 +13,10 @@ var bossHP = 10;;
 var bossAlive = 0;
 var kamehamehaAvailable = 1;
 var odabir = prompt("Odaberite težinu, što je niži broj, to je igra teža ;) \n(Odaberite 2 za najbolji doživljaj igranja)");
+//timer za crate
+var timeInMinutes = 1;
+var currentTime = Date.parse(new Date());
+var deadline = new Date(currentTime + timeInMinutes*60*1000);
 //mutebutton
 var mutebutton = document.createElement("BUTTON");
 var t = document.createTextNode("Mute audio");
@@ -42,7 +46,6 @@ var crateImage = new Image();
 crateImage.onload = new function(){
 	crateReady = true;
 };
-
 
 var rocketReady = false;
 var rocketImage = new Image();
@@ -77,8 +80,6 @@ mobImage.onload = function() {
 	mobReady = true;
 };
 mobImage.src = "images/mob2.png";
-
-
 
 var bossReady = false;
 var bossImage = new Image();
@@ -162,6 +163,7 @@ addEventListener("keydown", function(e) {
 		pucanj.play();
 		}		
 	if (e.keyCode == 69 && kamehamehaAvailable == 1) {
+		kamehameha.speed = 720;
 		kamehamehaImage.src = "images/kamehameha.png";
 		kamehameha.x = hero.x + 8;
 		kamehameha.y = hero.y - 15;
@@ -173,6 +175,7 @@ addEventListener("keyup", function(e) {
     delete keysDown[e.keyCode];
 }, false);
 var update = function(modifier) {
+	//movement and limits
     if (38 in keysDown && hero.y > 250) {
         hero.y -= hero.speed * modifier;
     }
@@ -198,13 +201,18 @@ var update = function(modifier) {
 	if(hero.x <= 0){
 		hero.x = 0;
 	}
+	//crate 
+	if(getTimeRemaining(deadline).seconds <= 0){
+		crateImage.src = "images/crate.png";
+		crate.y = 0;
+		crate.x = Math.floor(Math.random()*670) + 1;
+
+	}
 	if(crate.y >= 700){
 		crate.y = 0;
 		crate.x = Math.floor(Math.random()*670) + 1;
 	}
-	while(rendom > 600 || rendom <280){
-		rendom = Math.floor((Math.random() * 1000) + 1);
-	}
+	//waves
 	for (i = 0; i < waves.length; i++) {
 		waves[i].x = waves[i].x + 10;
 		var x = waves[i].x + 23;
@@ -220,7 +228,7 @@ var update = function(modifier) {
 			mob.y = rendom;
 			killovi = killovi + 1;
 		}
-		//collision detection boss/mob
+		//collision detection wave/boss
 		if ((x >= boss.x && x <= boss.x+ 20) && (y >= boss.y && y <= boss.y+350)) {
 			waves.splice(waves[i], 1);
 			bossImage.src = "images/raptorsharkDamaged.png";
@@ -228,14 +236,29 @@ var update = function(modifier) {
 			bossImage.src = "images/raptorshark.png";
 			bossHP -= 1;
 		}    
-    }
+    }	
 	//collision detection kamehameha/mob
-			if ((kamehameha.x + 78>= mob.x && kamehameha.x + 78 <= mob.x+50) && (kamehameha.y+15 >= mob.y && kamehameha.y+15 <= mob.y+86)) {
-			mob.x = 1024;
-			mob.y = rendom;
-			killovi = killovi + 1;
-			kamehamehaImage.src = "";
-		}
+	if ((kamehameha.x + 78>= mob.x && kamehameha.x + 78 <= mob.x+50) && (kamehameha.y+15 >= mob.y && kamehameha.y+15 <= mob.y+86)) {
+		mob.x = 1024;
+		mob.y = rendom;
+		killovi = killovi + 1;
+		kamehamehaImage.src = "";
+	}
+	//collision detection kamehameha/boss
+	if ((kamehameha.x + 78>= boss.x && kamehameha.x + 78 <= boss.x+20) && (kamehameha.y+15 >= boss.y && kamehameha.y <= boss.y+350)) {
+		bossImage.src = "images/raptorsharkDamaged.png";
+		setTimeout(function(){ bossImage.src = "images/raptorshark.png"; }, 1000);
+		bossImage.src = "images/raptorshark.png";
+		bossHP -= 3;
+		kamehamehaImage.src = "";
+		kamehameha.x = 0;
+		kamehameha.speed = 0;
+	}	
+	if(kamehameha.x >= 1024){
+		kamehameha.x = 0;
+		kamehameha.speed = 0;
+		kamehamehImage.src = "";
+	}
     if(mob.x <= 0) {
 		mob.x = 1024;
 		mob.y = rendom;
@@ -274,7 +297,6 @@ var update = function(modifier) {
 		if(executedgameover == 0){
 			executedgameover = 1;
 			music.pause();
-			
 			gameover.play();			
 		}
     }	
@@ -384,12 +406,15 @@ var update = function(modifier) {
 		}
 	}	
 	//opće varijable
-	mob.x -= Math.log2(mob.speed * modifier * diff);
-	rendom = Math.floor((Math.random() * 1000) + 1);
+	
+	rendom = Math.floor(Math.random()*(600-280+1)+280);
+	mob.x -= Math.log2(mob.speed * modifier * diff);	
 	bossHealth.x = boss.x + 100;
 	bossHealth.y = boss.y + 250;
 	kamehameha.x += kamehameha.speed * modifier;
+	crate.y += crate.speed * modifier;
 	//console.log
+	console.log(getTimeRemaining(deadline).seconds);
 }
 
 
@@ -469,10 +494,6 @@ function pause(){
 	restart.y = canvas.height/2;
 }
 
-function spawnLoot(){
-	crate.y = Math.floor(Math.random() * 670) + 1  
-}
-
 function pokreni(){
 	hero.speed = 750;
 	mob.speed = 500;
@@ -506,6 +527,21 @@ function setGameOver(){
 	}
 }
 
+function getTimeRemaining(endtime){
+	var t = Date.parse(endtime) - Date.parse(new Date());
+	var seconds = Math.floor( (t/1000) % 60 );
+	var minutes = Math.floor( (t/1000/60) % 60 );
+	var hours = Math.floor( (t/(1000*60*60)) % 24 );
+	var days = Math.floor( t/(1000*60*60*24) );
+	return {
+		'total': t,
+		'days': days,
+		'hours': hours,
+		'minutes': minutes,
+		'seconds': seconds
+	};
+}
+
 function startAgain(){
 	location.reload();
 }
@@ -513,8 +549,7 @@ function startAgain(){
 var main = function() {
     var now = Date.now();
     var delta = now - then;
-
-    update(delta / 1000);
+	update(delta / 1000);
     render();
     then = now;
     requestAnimationFrame(main);
