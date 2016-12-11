@@ -36,11 +36,12 @@ var gameover = new Audio('sounds/GameOver.mp3');
 var yoursoul = new Audio('sounds/yoursoul.wav');
 var explosion = new Audio('sounds/explosion.wav');
 var safet = new Audio('sounds/safet.wav');
-var celebration = new Audio('sounds/panda.wav');
+var celebration = new Audio('sounds/pu$$y.wav');
 var woohoo = new Audio('sounds/woohoo.wav');
 music.play();
+music.volume = 0.17;
 music.currentTime = 25;
-pucanj.volume = 0.02;
+pucanj.volume = 0.10;
 
 var lista = [1, 2, 3, 4, 5, 6, 7];
 
@@ -149,7 +150,7 @@ var bossHealth = {
 	speed: 0
 }
 var boss = {
-	speed: 45
+	speed: 75
 }
 var restart = {
   speed: 0
@@ -268,7 +269,6 @@ var update = function(modifier) {
 		heroImage.src = "images/heroUP.png";
 		celebration.play();
 	}
-	
 	//waves
 	for (i = 0; i < waves.length; i++) {
 		waves[i].x = waves[i].x + 10;
@@ -514,7 +514,7 @@ var render = function() {
 		ctx.lineWidth = 3;
 		ctx.strokeStyle = '#00ff00';
 		ctx.strokeText("Broj killova " + killovi10 + killovi, 500, 40);
-	}	
+	}
 	if(cratesrceReady) {
 		ctx.drawImage(cratesrceImage, cratesrce.x, cratesrce.y);
 	}
