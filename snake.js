@@ -38,6 +38,7 @@ var explosion = new Audio('sounds/explosion.wav');
 var safet = new Audio('sounds/safet.wav');
 var celebration = new Audio('sounds/pu$$y.wav');
 var woohoo = new Audio('sounds/woohoo.wav');
+var kamehamehaFire = new Audio('sounds/kamehamehaFire.wav');
 music.play();
 music.volume = 0.17;
 music.currentTime = 25;
@@ -191,6 +192,7 @@ addEventListener("keydown", function(e) {
 		kamehameha.x = hero.x + 8;
 		kamehameha.y = hero.y + 15;
 		kamehamehaAvailable = 0;
+		kamehamehaFire.play();
 	}
 }, false);
 
@@ -242,7 +244,7 @@ var update = function(modifier) {
 		cratesrceImage.src = "";
 	}
 	//collision detection hero/cratesrce
-	if((hero.x < cratesrce.x + 45 && hero.x + 42 > cratesrce.x ) && (hero.y < cratesrce.y + 45 && hero.y + 69 > cratesrce.y)){
+	if((hero.x < cratesrce.x + 45 && hero.x + 42 > cratesrce.x ) && (hero.y < cratesrce.y + 45 && hero.y + 69 > cratesrce.y) && srceta <= 2){
 		cratesrceImage.src = "";
 		srceta += 1;
 		woohoo.play();
@@ -403,7 +405,7 @@ var update = function(modifier) {
 	if(bossHP == 2){
 		bossHealthImage.src = "images/health2.png";
 	}
-	if(bossHP == 1){
+	if(bossHP <= 1){
 		bossHealthImage.src = "images/health1.png";
 	}  
 	//boss death
