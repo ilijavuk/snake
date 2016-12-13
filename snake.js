@@ -12,6 +12,7 @@ var novaVar = 300;
 var bossHP = 10;;
 var bossAlive = 0;
 var kamehamehaAvailable = 0;
+var charging = 0;
 var odabir = prompt("Odaberite težinu, što je niži broj, to je igra teža ;) \n(Odaberite 2 za najbolji doživljaj igranja)");
 var executedgameover = 0;
 //timer za crate
@@ -26,8 +27,13 @@ foo.appendChild(mutebutton);
 mutebutton.addEventListener('click', function(){
 	music.volume = 0;
 	pucanj.volume = 0;
-	yoursoul.volume = 0;
 	gameover.volume = 0;
+	yoursoul.volume = 0;
+	explosion.volume = 0;
+	safet.volume = 0;
+	celebration.volume = 0;
+	woohoo.volume = 0;
+	kamehamehaFire.volume = 0;
 	});
 //sounds
 var music = new Audio('sounds/music.mp3');
@@ -38,6 +44,7 @@ var explosion = new Audio('sounds/explosion.wav');
 var safet = new Audio('sounds/safet.wav');
 var celebration = new Audio('sounds/pu$$y.wav');
 var woohoo = new Audio('sounds/woohoo.wav');
+var kamehamehaFire = new Audio('sounds/kamehamehaFire.wav');
 music.play();
 music.volume = 0.17;
 music.currentTime = 25;
@@ -186,11 +193,15 @@ addEventListener("keydown", function(e) {
 		pucanj.play();
 		}		
 	if (e.keyCode == 69 && kamehamehaAvailable == 1) {
-		kamehameha.speed = 720;
+		kamehamehaFire.play();
+		heroImage.src = "images/heroCharge.png";
+		charging = 1;
+		setTimeout(function(){ kamehameha.speed = 720;
 		kamehamehaImage.src = "images/kamehameha.png";
 		kamehameha.x = hero.x + 8;
 		kamehameha.y = hero.y + 15;
-		kamehamehaAvailable = 0;
+		kamehamehaAvailable = 0; 
+		charging = 0;}, 1000);
 	}
 }, false);
 
@@ -232,6 +243,9 @@ var update = function(modifier) {
 	if(hero.x <= 0){
 		hero.x = 0;
 	}
+	if(charging ==1){
+		heroImage.src = "images/heroCharge.png";
+	}
 	//crate srce
 	if(Math.abs(getTimeRemaining(deadline).seconds) == 10 || Math.abs(getTimeRemaining(deadline).seconds) == 30 || Math.abs(getTimeRemaining(deadline).seconds) == 50){
 		cratesrceImage.src = "images/cratesrce.png";
@@ -242,7 +256,7 @@ var update = function(modifier) {
 		cratesrceImage.src = "";
 	}
 	//collision detection hero/cratesrce
-	if((hero.x < cratesrce.x + 45 && hero.x + 42 > cratesrce.x ) && (hero.y < cratesrce.y + 45 && hero.y + 69 > cratesrce.y)){
+	if((hero.x < cratesrce.x + 45 && hero.x + 42 > cratesrce.x ) && (hero.y < cratesrce.y + 45 && hero.y + 69 > cratesrce.y) && srceta <= 2){
 		cratesrceImage.src = "";
 		srceta += 1;
 		woohoo.play();
@@ -289,8 +303,7 @@ var update = function(modifier) {
 		if ((x >= boss.x && x <= boss.x+ 20) && (y >= boss.y && y <= boss.y+350)) {
 			waves.splice(waves[i], 1);
 			bossImage.src = "images/raptorsharkDamaged.png";
-			setTimeout(function(){ bossImage.src = "images/raptorshark.png"; }, 1000);
-			bossImage.src = "images/raptorshark.png";
+			setTimeout(function(){ bossImage.src = "images/raptorshark.png"; }, 500);
 			bossHP -= 1;
 		}    
     }	
@@ -403,11 +416,11 @@ var update = function(modifier) {
 	if(bossHP == 2){
 		bossHealthImage.src = "images/health2.png";
 	}
-	if(bossHP == 1){
+	if(bossHP <= 1){
 		bossHealthImage.src = "images/health1.png";
 	}  
 	//boss death
-	if(bossHP == 0 && pauzirano == 0){
+	if(bossHP <= 0 && pauzirano == 0){
 		mobImage.src = "images/mob2.png";
 		rocketImage.src = "";
 		bossImage.src = "";
@@ -599,10 +612,19 @@ function setGameOver(){
 	restart.x = 300;
 	restart.y = 350;
 	crate.x = 1024;
-	restartImage.src = "images/startOver.png";
+	restartImage.src = "images/startOver.png";	
     if(13 in keysDown){
 		startAgain();
 	}
+	//sounds
+	music.pause();
+	pucanj.pause();
+	yoursoul.pause();
+	explosion.pause();
+	safet.pause();
+	celebration.pause();
+	woohoo.pause();
+	kamehamehaFire.pause();
 }
 
 function getTimeRemaining(endtime){
