@@ -20,21 +20,42 @@ var timeInMinutes = 1;
 var currentTime = Date.parse(new Date());
 var deadline = new Date(currentTime + timeInMinutes*60*1000);
 //mutebutton
+var muzikaplaying = 1;
 var mutebutton = document.createElement("BUTTON");
-var t = document.createTextNode("Mute audio");
+var t = document.createTextNode("Audio OFF");
 mutebutton.appendChild(t);
 foo.appendChild(mutebutton);
-mutebutton.addEventListener('click', function(){
-	music.volume = 0;
-	pucanj.volume = 0;
-	gameover.volume = 0;
-	yoursoul.volume = 0;
-	explosion.volume = 0;
-	safet.volume = 0;
-	celebration.volume = 0;
-	woohoo.volume = 0;
-	kamehamehaFire.volume = 0;
-	});
+function switchMuzika(){
+	if(muzikaplaying == 1){
+		music.volume = 0;
+		pucanj.volume = 0;
+		gameover.volume = 0;
+		yoursoul.volume = 0;
+		explosion.volume = 0;
+		safet.volume = 0;
+		celebration.volume = 0;
+		woohoo.volume = 0;
+		kamehamehaFire.volume = 0;
+		muzikaplaying = 0;
+		t.nodeValue = "Audio ON";
+	}
+	
+	else{
+		music.volume = 0.17;
+		pucanj.volume = 0.10;
+		gameover.volume = 1;
+		yoursoul.volume = 1;
+		explosion.volume = 1;
+		safet.volume = 1;
+		celebration.volume = 1;
+		woohoo.volume = 1;
+		kamehamehaFire.volume = 1;
+		muzikaplaying = 1;
+		t.nodeValue = "Audio OFF";
+	}
+}
+mutebutton.addEventListener('click', switchMuzika);
+
 //sounds
 var music = new Audio('sounds/music.mp3');
 var pucanj = new Audio('sounds/wave2.mp3');
@@ -490,7 +511,6 @@ var update = function(modifier) {
 	crate.y += crate.speed * modifier;
 	cratesrce.y += cratesrce.speed * modifier;
 	//console.log
-	console.log(getTimeRemaining(deadline).seconds);
 }
 
 
